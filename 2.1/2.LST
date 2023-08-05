@@ -1,0 +1,159 @@
+C51 COMPILER V9.01   2                                                                     02/21/2022 21:28:37 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE 2
+OBJECT MODULE PLACED IN 2.OBJ
+COMPILER INVOKED BY: D:\DanPianJi\Èí¼þ\C51\BIN\C51.EXE 2.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg52.h>                //°üº¬µ¥Æ¬»ú¼Ä´æÆ÷µÄÍ·ÎÄ¼þ
+   2          #include <stdio.h>
+   3          #include <math.h>
+   4          #include <intrins.h>
+   5          #include "JY901.h"
+   6          
+   7          sbit moto1=P1^0;//µÚÒ»¸ö¶æ»ú 
+   8          sbit moto2=P1^1;//µÚ¶þ¸ö¶æ»ú 
+   9          sbit K4=P3^3;//£¨¶Ì½Ó£© ¸´Î» 
+  10          
+  11          unsigned char Duty=5;      //³õÊ¼Îª5½Ç¶È0
+  12          unsigned char Period=200;       //ÖÜÆÚ20ms
+  13          unsigned char times=0;          //¼ÆÊý
+  14          unsigned char Duty1=5;     //³õÊ¼Îª5½Ç¶È0          
+  15          
+  16          void delay1s900ms(void)   //Îó²î -0.000000000432us      1.9Ãë
+  17          {
+  18   1          unsigned char a,b,c;
+  19   1          for(c=101;c>0;c--)
+  20   1              for(b=214;b>0;b--)
+  21   1                  for(a=39;a>0;a--);
+  22   1      }
+  23          
+  24          
+  25          void delay100us(void)   //Îó²î 0us
+  26          {
+  27   1          unsigned char a,b;
+  28   1          for(b=1;b>0;b--)
+  29   1              for(a=47;a>0;a--);
+  30   1      }
+  31          
+  32          
+  33          void delay400ms(void)   //Îó²î -0.000000000091us 0.4Ãë
+  34          {
+  35   1          unsigned char a,b,c;
+  36   1          for(c=103;c>0;c--)
+  37   1              for(b=24;b>0;b--)
+  38   1                  for(a=73;a>0;a--);
+  39   1      }
+  40          
+  41          
+  42          void delay(unsigned int i)
+  43          {
+  44   1              while(i--);
+  45   1      }
+  46          
+  47          void time0init()
+  48          {
+  49   1              TMOD=0X01;
+  50   1              TL0=0x9D;               //ÉèÖÃ¶¨Ê±³õÖµ
+  51   1              TH0=0xFF;               //ÉèÖÃ¶¨Ê±³õÖµ 0.1ms
+  52   1              TR0=1;
+  53   1              ET0=1;
+  54   1              EA=1;
+  55   1      }
+C51 COMPILER V9.01   2                                                                     02/21/2022 21:28:37 PAGE 2   
+
+  56          
+  57          void main(void)
+  58          {
+  59   1              float Vz;//¶¨ÒåËÙ¶È 
+  60   1              unsigned char i=0;              
+  61   1              stcAngle.Angle[0]=stcAngle.Angle[0]/(32768*180);//180Îª½Ç¶È 
+  62   1              stcAngle.Angle[1]=stcAngle.Angle[1]/(32768*180);
+  63   1              stcAngle.Angle[2]=stcAngle.Angle[2]/(32768*180);
+  64   1      
+  65   1              stcAcc.a[0]=stcAcc.a[0]/(32768*16);//¼ÓËÙ¶È¼Æ¿É²â·¶Î§16g 
+  66   1              stcAcc.a[1]=stcAcc.a[1]/(32768*16);
+  67   1          stcAcc.a[2]=stcAcc.a[2]/(32768*16);
+  68   1      
+  69   1          stcGPSV.lGPSVelocity=(stcGPSV.lGPSVelocity)/1000;//Ëã³öÍÓÂÝÒÇËÙ¶ÈµÄ±ä»¯£¨»ý·Ö£©     
+  70   1              Vz=(stcGPSV.lGPSVelocity)*cos(stcAngle.Angle[0])*cos(stcAngle.Angle[1]);//stcGPSV.lGPSVelocityÎªµ±Ç°´Ë¿Ìµ
+             -ÄË²Ê±ËÙ¶È 
+  71   1      
+  72   1              time0init();
+  73   1              while(1)
+  74   1              {
+  75   2                 if(K4==1&&Vz==0)//µ±Ë²Ê±ËÙ¶ÈÎª0 
+  76   2                 {
+  77   3                       delay(1000);//ÑÓÊ±10ms
+  78   3                       if(K4==1&&Vz==0)
+  79   3                       {
+  80   4                                      delay1s900ms();
+  81   4                                      Duty=Duty+10;//»¬Ïè»úÍÑÀë 
+  82   4                                      delay400ms();
+  83   4                                      Duty1=Duty1+10;//¿ªÉ¡ 
+  84   4                       }
+  85   3                      
+  86   3                 }
+  87   2                        delay100us();  // 0.1s    ÕâÀïÊÇÒòÎªÍÓÂÝÒÇ²»Ò»¶¨ÄÜ´¦ÓÚ×î¼ÑÎ»ÖÃ£¬²»ÄÜ¹»±£Ö¤Ë²Ê±ËÙ¶ÈÎª0£¬´Ë´¦×÷ÎªÇ¿ÖÆ¿ªÉ
+             -¡ 
+  88   2                       if(K4==1&&Vz!=0)
+  89   2                       delay(1000);
+  90   2                      if(K4==1&&Vz!=0)
+  91   2                       {
+  92   3                              
+  93   3                                      Duty=Duty+10;
+  94   3                                      delay400ms();
+  95   3                                      Duty1=Duty1+10;
+  96   3                       }
+  97   2                       
+  98   2               }
+  99   1      }
+ 100          
+ 101          void time0() interrupt 1
+ 102          {
+ 103   1              TL0 = 0x9D;             //ÉèÖÃ¶¨Ê±³õÖµ
+ 104   1              TH0 = 0xFF;             //ÉèÖÃ¶¨Ê±³õÖµ  0.1ms
+ 105   1              times++;
+ 106   1              if(times<=Duty)
+ 107   1              {
+ 108   2                 moto1=1;
+ 109   2              }
+ 110   1              else
+ 111   1              {
+ 112   2                 moto1=0;
+ 113   2              } 
+ 114   1      
+ 115   1      
+C51 COMPILER V9.01   2                                                                     02/21/2022 21:28:37 PAGE 3   
+
+ 116   1              if(times<=Duty1)
+ 117   1              {
+ 118   2                 moto2=1;
+ 119   2              }
+ 120   1              else
+ 121   1              {
+ 122   2                 moto2=0;
+ 123   2              } 
+ 124   1      
+ 125   1      
+ 126   1              if(times>=Period)
+ 127   1              {
+ 128   2                 times=0;
+ 129   2              }
+ 130   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    496    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
